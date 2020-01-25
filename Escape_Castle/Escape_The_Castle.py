@@ -4,7 +4,7 @@ import os
 import random
 
 
-
+#player class
 
 class player(object):
     run = [pygame.image.load(os.path.join('.images', str(x) + '.png')) for x in range(8,16)]
@@ -61,6 +61,7 @@ class player(object):
             self.hitbox = (self.x+ 4,self.y,self.width-24,self.height-13)
         #pygame.draw.rect(screen, (255,0,0),self.hitbox, 2)
 
+#obsacles classes includes(armor,spike)
 class armor(object):
     img = [pygame.image.load(os.path.join('.images', 'Knight1.png')),pygame.image.load(os.path.join('.images', 'Knight2.png')),pygame.image.load(os.path.join('.images', 'Knight3.png'))]
     def __init__(self,x,y,width,height):
@@ -103,6 +104,7 @@ class spike(armor):
                 return True
         return False
 
+#reward/punishments classes(gohst,sword)
 class Ghost(armor):
     img = pygame.image.load(os.path.join('.images', 'ghost.png'))
     def draw(self,screen):
@@ -125,6 +127,8 @@ class sword(armor):
                     if rect[1] < self.hitbox[1]:
                         return True
                 return False
+
+#writing score to a file
 def updateFile():
     f = open('.scores.txt','r')
     file = f.readlines()
@@ -141,7 +145,7 @@ def updateFile():
     return last
 
 
-
+#screens(wiing and end)
 def winScreen():
     global pause, score, swords, speed, obstacles
     pause = 0
@@ -205,7 +209,7 @@ entScore = largeFont.render('Your_Score: '+ str(score),1,(56,7,12))
     swords = 0
 
         
-
+#where the blitting the classes to the screee happen
 
 def redrawscreen(screen, bg, bgX, bgX2, score, swords, hero, obstacles, rewards):
     largeFont = pygame.font.SysFont('comicsans', 30)
@@ -223,8 +227,10 @@ def redrawscreen(screen, bg, bgX, bgX2, score, swords, hero, obstacles, rewards)
     screen.blit(text, (700, 10))
     pygame.display.update()
 
+#maiin game loop
 def run_main_game():
     
+    #setting the window
     pygame.init()
     W, H = 580, 570
     screen = pygame.display.set_mode((W,H))
@@ -234,11 +240,14 @@ def run_main_game():
     bgX2 = bg.get_width()
     clock = pygame.time.Clock()
 
+    #making stuff happen
+
     pygame.time.set_timer(USEREVENT+1, 500)
     pygame.time.set_timer(USEREVENT+2, 9000)
     pygame.time.set_timer(USEREVENT+3, 900)
+    
+    #main varibles,lists
     speed = 30
-
     score = 0
     swords = 0
 
@@ -250,6 +259,7 @@ def run_main_game():
     pause = 0
     fallSpeed = 0
 
+    #calling end or win screen
     while run:
         if pause > 0:
             pause += 1
@@ -258,6 +268,7 @@ def run_main_game():
         if score >= 100:
             winScreen()
         
+     #blitting the obsticles(knight/spike)
         for obstacle in obstacles:
             if obstacle.collide(hero.hitbox):
                 if type(obstacle) == armor:
@@ -282,7 +293,7 @@ def run_main_game():
                 score += 1
             else:
                 obstacle.x -= 1.4
-                
+        #blitting reward/punisments(sword or ghost)        
         for thing in rewards:
             if thing.collide(hero.hitbox):
                 if type(thing) == sword:
@@ -300,6 +311,7 @@ def run_main_game():
             else:
                 thing.x -= 1.4
         
+        #scrolling screen
         bgX -= 1.4
         bgX2 -= 1.4
 
@@ -313,7 +325,8 @@ def run_main_game():
                 pygame.quit()
                 run = False 
                 raise SystemExit
-                
+
+         #bitting stuff to screen with events       
             if event.type == USEREVENT+1:
                 speed += 1
                 
