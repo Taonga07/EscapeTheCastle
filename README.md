@@ -1,2 +1,2 @@
-# DidgiLocal-work
+# DigiLocal-work
 my coding work
