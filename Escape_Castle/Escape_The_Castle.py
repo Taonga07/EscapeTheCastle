@@ -83,9 +83,9 @@ class Player(GameObject): #our Player is now a sub-class of GameObject
         #pygame.draw.rect(screen, (255,0,0),self.hitbox, 2)
 
 #obsacles classes includes(armor,spike)
-class Armor(GameObject):
+class Armor(GameObject): #now a sub-class of GameObject
     def __init__(self,x,y,width,height):
-        super().__init__(x, y, width, height)
+        super().__init__(x, y, width, height) #and inherits attributes from GameObject
         self.img = [pygame.image.load(os.path.join('.images', 'Knight1.png')),pygame.image.load(os.path.join('.images', 'Knight2.png')),pygame.image.load(os.path.join('.images', 'Knight3.png'))]
         self.costume = random.randint(0, 2)
 
@@ -100,9 +100,9 @@ class Armor(GameObject):
                 return True
         return False
 
-class Spike(GameObject):
+class Spike(GameObject): #now a sub-class of GameObject
     def __init__(self,x,y,width,height):
-        super().__init__(x, y, width, height)
+        super().__init__(x, y, width, height) #and inherits attributed from GameObject
         #I think you had your images named wrong, I've renamed them in the order they get bigger
         self.img = [pygame.image.load(os.path.join('.images', 'Spike.png')), 
                 pygame.image.load(os.path.join('.images', 'Spike1.png')), 
@@ -110,6 +110,7 @@ class Spike(GameObject):
         self.costume = [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2]
         self.number = 0
         #self.img_count = self.move[no] this isn't needed
+
     def draw(self,screen):
         if self.costume[self.number] == 0:
             self.hitbox = (self.x, self.y, 80,500)
@@ -124,6 +125,7 @@ class Spike(GameObject):
         self.number += 1
         if self.number == len(self.costume):
             self.number = 0
+
     def collide(self, rect):
         if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
             if rect[1] < self.hitbox[3]:
@@ -131,7 +133,7 @@ class Spike(GameObject):
         return False
 
 #reward/punishments classes(gohst,sword)
-#I would make a reward class
+#I would make a reward class, and then ghosts & swords as sub-classes
 class Reward(GameObject):
     def __init__(self,x,y,width,height):
         super().__init__(x, y, width, height)
@@ -148,11 +150,10 @@ class Reward(GameObject):
         #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
         screen.blit(pygame.transform.scale(self.img, (50,50)), (self.x,self.y))
 
-class Ghost(Reward):
+class Ghost(Reward): #Ghosts are sub-classes of Reward, which is a sub-class of GameObject
     def __init__(self,x,y,width,height):
-        super().__init__(x, y, width, height)
+        super().__init__(x, y, width, height) #everything inherits back to GameObject
         self.img = pygame.image.load(os.path.join('.images', 'ghost.png'))
-
 
 class Sword(Reward):
     def __init__(self,x,y,width,height):
@@ -178,7 +179,7 @@ def updateFile():
 
 #screens(wining and end)
 def winScreen():
-    global pause, score, swords, speed, obstacles
+    global pause, score, swords, speed, obstacles #oooh, bad globals - should pass arguments to function and return if needed
     pause = 0
     speed = 30
     obstacles = []
