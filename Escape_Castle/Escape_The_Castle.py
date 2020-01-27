@@ -3,20 +3,40 @@ from pygame.locals import *
 import os
 import random
 
+#I think this was written in python2, there are a few changes to python3 when using classes
+#you have 4 classes - player, sword, ghost, armour
+#they all share some attributes (x, y, width, height)
+#you've sort of recognised this as spike and ghost are child classes from armour - they inherit from armour class
+#however, I think if you make a single parent class - game_object then everything can inherit from that and it becomes a little clearer
 
-#player class
-
-class player(object):
-    run = [pygame.image.load(os.path.join('.images', str(x) + '.png')) for x in range(8,16)]
-    jump = [pygame.image.load(os.path.join('.images', str(x) + '.png')) for x in range(1,8)]
-    slide = [pygame.image.load(os.path.join('.images', 'S1.png')),pygame.image.load(os.path.join('.images', 'S2.png')),pygame.image.load(os.path.join('.images', 'S2.png')),pygame.image.load(os.path.join('.images', 'S2.png')), pygame.image.load(os.path.join('.images', 'S2.png')),pygame.image.load(os.path.join('.images', 'S2.png')), pygame.image.load(os.path.join('.images', 'S2.png')), pygame.image.load(os.path.join('.images', 'S2.png')), pygame.image.load(os.path.join('.images', 'S3.png')), pygame.image.load(os.path.join('.images', 'S4.png')), pygame.image.load(os.path.join('.images', 'S5.png'))]
-    fall = pygame.image.load(os.path.join('.images','0.png'))
-    jumpList = [1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4]
-    def __init__(self, x, y, width, height):
+class GameObject(): #note you don't need to specify that this is an object in python3
+    #its also convention to put a capital letter on your class
+    def __init__(self, x, y, width, height): #all your sub-classes have these attributes
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+
+#player class
+class Player(GameObject): #our Player is now a sub-class of GameObject
+    # shouldn't really have variables ouside the __init__
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height) #this allows us to use the game_object variables
+        self.run = [pygame.image.load(os.path.join('.images', str(x) + '.png')) for x in range(8,16)]
+        self.jump = [pygame.image.load(os.path.join('.images', str(x) + '.png')) for x in range(1,8)]
+        self.slide = [pygame.image.load(os.path.join('.images', 'S1.png')),
+                        pygame.image.load(os.path.join('.images', 'S2.png')),
+                        pygame.image.load(os.path.join('.images', 'S2.png')),  
+                        pygame.image.load(os.path.join('.images', 'S2.png')), 
+                        pygame.image.load(os.path.join('.images', 'S2.png')),
+                        pygame.image.load(os.path.join('.images', 'S2.png')), 
+                        pygame.image.load(os.path.join('.images', 'S2.png')), 
+                        pygame.image.load(os.path.join('.images', 'S2.png')), 
+                        pygame.image.load(os.path.join('.images', 'S3.png')), 
+                        pygame.image.load(os.path.join('.images', 'S4.png')), 
+                        pygame.image.load(os.path.join('.images', 'S5.png'))]
+        self.fall = pygame.image.load(os.path.join('.images','0.png'))
+        self.jumpList = [1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4,-4]
         self.jumping = False
         self.sliding = False
         self.falling = False
@@ -24,6 +44,7 @@ class player(object):
         self.jumpCount = 0
         self.runCount = 0
         self.slideUp = False
+
     def draw(self, screen):
         if self.falling:
             screen.blit(self.fall, (self.x, self.y + 30))        
@@ -40,13 +61,13 @@ class player(object):
             if self.slideCount < 20:
                 self.y += 1
                 self.hitbox = (self.x+ 4,self.y,self.width-24,self.height-10)
+            elif self.slideCount > 20 and self.slideCount < 80: #reorded to be a little more logical
+                self.hitbox = (self.x,self.y+3,self.width-8,self.height-35)      
             elif self.slideCount == 80:
                 self.y -= 19
                 self.sliding = False
                 self.slideUp = True
-            elif self.slideCount > 20 and self.slideCount < 80:
-                self.hitbox = (self.x,self.y+3,self.width-8,self.height-35)      
-            if self.slideCount >= 110:
+            if self.slideCount >= 110: #what happens if slideCount is between 80 and 110?
                 self.slideCount = 0
                 self.runCount = 0
                 self.slideUp = False
@@ -62,42 +83,47 @@ class player(object):
         #pygame.draw.rect(screen, (255,0,0),self.hitbox, 2)
 
 #obsacles classes includes(armor,spike)
-class armor(object):
-    img = [pygame.image.load(os.path.join('.images', 'Knight1.png')),pygame.image.load(os.path.join('.images', 'Knight2.png')),pygame.image.load(os.path.join('.images', 'Knight3.png'))]
+class Armor(GameObject):
     def __init__(self,x,y,width,height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        super().__init__(x, y, width, height)
+        self.img = [pygame.image.load(os.path.join('.images', 'Knight1.png')),pygame.image.load(os.path.join('.images', 'Knight2.png')),pygame.image.load(os.path.join('.images', 'Knight3.png'))]
         self.costume = random.randint(0, 2)
+
     def draw(self,screen):
         self.hitbox = (self.x, self.y, 150,460)
         #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
         screen.blit(pygame.transform.scale(self.img[self.costume], (150,460)), (self.x,self.y))
+
     def collide(self, rect):
         if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
             if rect[1] + rect[3] > self.hitbox[1]:
                 return True
         return False
-class spike(armor):
-    img = [pygame.image.load(os.path.join('.images', 'Spike.png')), pygame.image.load(os.path.join('.images', 'Spike1.png')), pygame.image.load(os.path.join('.images', 'Spike2.png'))]
-    move = [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2]
-    no = 0
-    img_count = move[no]
+
+class Spike(GameObject):
+    def __init__(self,x,y,width,height):
+        super().__init__(x, y, width, height)
+        #I think you had your images named wrong, I've renamed them in the order they get bigger
+        self.img = [pygame.image.load(os.path.join('.images', 'Spike.png')), 
+                pygame.image.load(os.path.join('.images', 'Spike1.png')), 
+                pygame.image.load(os.path.join('.images', 'Spike2.png'))]
+        self.costume = [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2]
+        self.number = 0
+        #self.img_count = self.move[no] this isn't needed
     def draw(self,screen):
-        if self.img_count == 0:
+        if self.costume[self.number] == 0:
             self.hitbox = (self.x, self.y, 80,500)
             #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
-        elif self.img_count == 2:
+        elif self.costume[self.number] == 1:
             self.hitbox = (self.x, self.y, 80,520)
             #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
-        elif self.img_count == 3:
+        elif self.costume[self.number] == 2: #you don't have a fourth costume
             self.hitbox = (self.x, self.y, 80,530)
             #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
-        elif self.img_count == self.move[29]:
-            self.no = 0
-        screen.blit(self.img[self.img_count], (self.x,self.y))
-        self.no += 1
+        screen.blit(self.img[self.costume[self.number]], (self.x,self.y))
+        self.number += 1
+        if self.number == len(self.costume):
+            self.number = 0
     def collide(self, rect):
         if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
             if rect[1] < self.hitbox[3]:
@@ -105,28 +131,33 @@ class spike(armor):
         return False
 
 #reward/punishments classes(gohst,sword)
-class Ghost(armor):
-    img = pygame.image.load(os.path.join('.images', 'ghost.png'))
-    def draw(self,screen):
-        self.hitbox = (self.x, self.y, 50,50)  # defines the hitbox
-        #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
-        screen.blit(pygame.transform.scale(self.img, (50,50)), (self.x,self.y))
-    def collide(self, rect):
-                if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
-                    if rect[1] < self.hitbox[1]:
-                        return True
-                return False            
-class sword(armor):
-    img = pygame.image.load(os.path.join('.images', 'sword.png'))
-    def draw(self,screen):
-        self.hitbox = (self.x, self.y, 50,50)  # defines the hitbox
-        #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
-        screen.blit(pygame.transform.scale(self.img, (50,50)), (self.x,self.y))
+#I would make a reward class
+class Reward(GameObject):
+    def __init__(self,x,y,width,height):
+        super().__init__(x, y, width, height)
+    #our collide function for rewards is the same for ghosts and swords
+    #so we can put it here and only write it out once
     def collide(self, rect):
                 if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
                     if rect[1] < self.hitbox[1]:
                         return True
                 return False
+    #and so is your draw for rewards
+    def draw(self,screen):
+        self.hitbox = (self.x, self.y, 50,50)  # defines the hitbox
+        #pygame.draw.rect(screen, (255,0,0), self.hitbox, 2)
+        screen.blit(pygame.transform.scale(self.img, (50,50)), (self.x,self.y))
+
+class Ghost(Reward):
+    def __init__(self,x,y,width,height):
+        super().__init__(x, y, width, height)
+        self.img = pygame.image.load(os.path.join('.images', 'ghost.png'))
+
+
+class Sword(Reward):
+    def __init__(self,x,y,width,height):
+        super().__init__(x, y, width, height)
+        self. img = pygame.image.load(os.path.join('.images', 'sword.png'))
 
 #writing score to a file
 def updateFile():
@@ -145,7 +176,7 @@ def updateFile():
     return last
 
 
-#screens(wiing and end)
+#screens(wining and end)
 def winScreen():
     global pause, score, swords, speed, obstacles
     pause = 0
@@ -251,7 +282,7 @@ def run_main_game():
     swords = 0
 
     run = True
-    hero = player(100,517,64,64)
+    hero = Player(100,517,64,64)
 
     obstacles = []
     rewards = []
@@ -270,7 +301,7 @@ def run_main_game():
      #blitting the obsticles(knight/spike)
         for obstacle in obstacles:
             if obstacle.collide(hero.hitbox):
-                if type(obstacle) == armor:
+                if type(obstacle) == Armor:
                     if swords >= 3:
                         obstacles.pop(obstacles.index(obstacle))
                         swords -= 5
@@ -295,7 +326,7 @@ def run_main_game():
         #blitting reward/punisments(sword or ghost)        
         for thing in rewards:
             if thing.collide(hero.hitbox):
-                if type(thing) == sword:
+                if type(thing) == Sword:
                     swords += 1
                     rewards.pop(rewards.index(thing))
                 if type(thing) == Ghost:
@@ -332,14 +363,14 @@ def run_main_game():
             if event.type == USEREVENT+2:
                 r = random.randrange(0,2)
                 if r == 0:
-                    obstacles.append(armor(810,110,64,64))
+                    obstacles.append(Armor(810,110,64,64))
                 elif r == 1:
-                    obstacles.append(spike(810, 0, 48, 310))
+                    obstacles.append(Spike(810, 0, 48, 310))
             
             if event.type == USEREVENT+3:
                 a = random.randrange(0,2)
                 if a == 0:
-                    rewards.append(sword(200,400,50,50))
+                    rewards.append(Sword(200,400,50,50))
                 elif a == 1:
                     rewards.append(Ghost(200,400,50,50))
                     
