@@ -200,8 +200,7 @@ def endScreen():
         screen.blit(bg, (0,0))
         largeFont = pygame.font.SysFont('comicsans', 80)
         lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(56,7,12))
-        currdef redrawscreen(screen, bg, bgX, bgX2, score, swords, hero, obstacles, rewards):
-entScore = largeFont.render('Your_Score: '+ str(score),1,(56,7,12))
+        currentScore = largeFont.render('Your_Score: '+ str(score),1,(56,7,12))
         screen.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
         screen.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
         pygame.display.update()
