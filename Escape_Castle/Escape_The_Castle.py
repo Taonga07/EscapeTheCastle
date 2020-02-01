@@ -386,8 +386,8 @@ def run_main_game():
                 if not(hero.sliding):
                     hero.sliding = True
 
-        clock.tick(speed)
         redrawscreen(screen, bg, bgX, bgX2, score, swords, hero, obstacles, rewards)
+        clock.tick(speed)
 
 
 if __name__ == '__main__':
