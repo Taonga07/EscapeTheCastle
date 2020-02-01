@@ -161,7 +161,7 @@ class Sword(Reward):
         self. img = pygame.image.load(os.path.join('.images', 'sword.png'))
 
 #writing score to a file
-def updateFile():
+def updateFile(score):
     f = open('.scores.txt','r')
     file = f.readlines()
     last = int(file[0])
@@ -178,13 +178,9 @@ def updateFile():
 
 
 #screens(wining and end)
-def winScreen():
-    global pause, score, swords, speed, obstacles #oooh, bad globals - should pass arguments to function and return if needed
-    pause = 0
-    speed = 30
-    obstacles = []
-                   
+def winScreen(screen, bg, score):
     run = True
+    score = score
     while run:
         pygame.time.delay(100)
         for event in pygame.event.get():
@@ -206,16 +202,10 @@ def winScreen():
         screen.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
         screen.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
         pygame.display.update()
-    score = 0
-    swords = 0
     
-def endScreen():
-    global pause, score, swords, speed, obstacles
-    pause = 0
-    speed = 30
-    obstacles = []
-                   
+def endScreen(screen, bg, scorepassed, hero):
     run = True
+    endscore = scorepassed
     while run:
         pygame.time.delay(100)
         for event in pygame.event.get():
@@ -231,14 +221,11 @@ def endScreen():
                 
         screen.blit(bg, (0,0))
         largeFont = pygame.font.SysFont('comicsans', 80)
-        lastScore = largeFont.render('Best Score: ' + str(updateFile()),1,(56,7,12))
-        currentScore = largeFont.render('Your_Score: '+ str(score),1,(56,7,12))
-        screen.blit(lastScore, (W/2 - lastScore.get_width()/2,150))
-        screen.blit(currentScore, (W/2 - currentScore.get_width()/2, 240))
+        lastScore = largeFont.render('Best Score: ' + str(updateFile(scorepassed)),1,(56,7,12))
+        currentScore = largeFont.render('Your_Score: '+ str(scorepassed),1,(56,7,12))
+        screen.blit(lastScore, (screen.get_width()/2 - lastScore.get_width()/2,150))
+        screen.blit(currentScore, (screen.get_width()/2 - currentScore.get_width()/2, 240))
         pygame.display.update()
-    score = 0
-    swords = 0
-
         
 #where the blitting the classes to the screee happen
 
@@ -257,6 +244,12 @@ def redrawscreen(screen, bg, bgX, bgX2, score, swords, hero, obstacles, rewards)
         thing.draw(screen)
     screen.blit(text, (700, 10))
     pygame.display.update()
+
+def resetvariables(score, swords, pause, speed, obstacles):
+    score, swords, pause = 0
+    speed = 30
+    obstacles = []
+    return score, swords, pause, speed, obstacles
 
 #maiin game loop
 def run_main_game():
@@ -295,9 +288,11 @@ def run_main_game():
         if pause > 0:
             pause += 1
             if pause > fallSpeed * 2:
-                endScreen()
+                endScreen(screen, bg, score, hero)
+                score, swords, pause, speed, obstacles = resetvariables(score, swords, pause, speed, obstacles)
         if score >= 100:
-            winScreen()
+            winScreen(screen, bg, score)
+            score, swords, pause, speed, obstacles = resetvariables(score, swords, pause, speed, obstacles)
         
      #blitting the obsticles(knight/spike)
         for obstacle in obstacles:
