@@ -1,27 +1,28 @@
-import pygame
 from pygame.locals import *
-import os
-import random
+import pygame, random, os
 
-#I think this was written in python2, there are a few changes to python3 when using classes
-#you have 4 classes - player, sword, ghost, armour
-#they all share some attributes (x, y, width, height)
-#you've sort of recognised this as spike and ghost are child classes from armour - they inherit from armour class
-#however, I think if you make a single parent class - game_object then everything can inherit from that and it becomes a little clearer
-
-class GameObject(): #note you don't need to specify that this is an object in python3
-    #its also convention to put a capital letter on your class
-    def __init__(self, x, y, width, height): #all your sub-classes have these attributes
-        self.x = x
-        self.y = y
-        self.width = width
+class GameObject(): 
+    def __init__(self, x, y, width, height, file):
+        self.SpriteSheet(file, sprites)
+        self.x, self.y  = x, y
         self.height = height
+        self.width = width
+    def SpriteSheet(self, filename, sprites_pos):
+		self.sheet = pygame.image.load(filename).convert_alpha()
+		columns, row = sprites_pos
+		stotalCellCount = columns*rows
+		SheetRect = self.sheet.get_rect()
+		w = cellWidth = int(SheetRect.width / columns)
+		h = cellHeight = int(SheetRect.height / rows)
+		hw, hh = cellCenter = (int(w / 2), int(h / 2))
+		self.cells = list([(index % columns * w, int(index / columns) * h, w, h) for index in range(totalCellCount)])
+    def draw(self, screen, index):
+        screen.blit(self.sheet, (self.x, self.y), self.cells[Index])
 
-#player class
-class Player(GameObject): #our Player is now a sub-class of GameObject
-    # shouldn't really have variables ouside the __init__
+
+class Player(GameObject):
     def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height) #this allows us to use the game_object variables
+        super().__init__(x, y, width, height)
         self.run = [pygame.image.load(os.path.join('.images', str(x) + '.png')) for x in range(8,16)]
         self.jump = [pygame.image.load(os.path.join('.images', str(x) + '.png')) for x in range(1,8)]
         self.slide = [pygame.image.load(os.path.join('.images', 'S1.png')),
@@ -165,15 +166,12 @@ def updateFile(score):
     f = open('.scores.txt','r')
     file = f.readlines()
     last = int(file[0])
-
     if last < int(score):
         f.close()
         file = open('.scores.txt', 'w')
         file.write(str(score))
         file.close()
-
         return score
-               
     return last
 
 
